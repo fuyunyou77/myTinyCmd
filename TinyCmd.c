@@ -17,7 +17,7 @@
 /*
  * File: TinyCmd.c
  * Author: Civic_Crab
- * Version: 1.0.0
+ * Version: 1.1.0
  * Created on: 2024-10-24
  *
  * Description:
@@ -26,11 +26,9 @@
 
 #include "TinyCmd.h"
 
+#ifndef NULL
 #define NULL ((void *)0)
-#define CMD_NAME_LENGTH 8
-#define CMD_LIST_SIZE 8
-#define CMD BUF_SIZE 64
-#define CMD_MAX_PARAM 4
+#endif //NULL
 
 //Local structs
 typedef struct Tiny_Command_List {
@@ -54,6 +52,8 @@ TinyCmd_Counter_Type token_count;
 Tiny_Command_input TinyCmd_buf;
 
 //Local Function
+
+//If <string.h> is included,TinyCmd will use functions in <string.h>,instead of the following functions.
 static int TinyCmd_strcmp(const char* str1, const char* str2) {
     if (str1 == NULL || str2 == NULL) {
         return -1;
@@ -149,6 +149,12 @@ static TinyCmd_Counter_Type TinyCmd_strlen(const char* str) {
 }
 
 //Global functions
+
+//TinyCmd_Status TinyCmd_Init(void):
+//Description:Call this function when TinyCmd_buf is filled ,namely after you call TinyCmd_PutString()
+//Returns:
+//        TINYCMD_SUCCESS: Initialization successful.
+//        TINYCMD_FAILED: Initialization failed.
 TinyCmd_Status Tiny_Command_Handler(void) {
     TinyCmd_Counter_Type i = 0;
     const char* delims = " ";
@@ -160,6 +166,7 @@ TinyCmd_Status Tiny_Command_Handler(void) {
 
     //Read arguments
     token = TinyCmd_strtok_s(NULL, delims ,&context);
+
     while (token != NULL) {
         if (token_count < CMD_MAX_TOKENS) {
             TinyCmd_buf.arg[i++] = token;
@@ -174,29 +181,61 @@ TinyCmd_Status Tiny_Command_Handler(void) {
 
     //Excute callback function of command
     for (i = 0; i < TinyCmdRunning_Cmd.length; i++) {
-        if (!TinyCmd_strcmp(command, TinyCmdRunning_Cmd.list[i]->command)) {
+        
+        if (!TinyCmd_strcmp(command, TinyCmdRunning_Cmd.list[i]->command)) 
+        {
             TinyCmdRunning_Cmd.list[i]->callback();
+            //Clear TinyCmd_buf
+            TinyCmd_buf.length = 0; 
+            TinyCmd_buf.arg[0] = NULL;
+            TinyCmd_buf.buf[0] = '\0';
             return TINYCMD_SUCCESS;
         }
     }
 
+    //Clear TinyCmd_buf
+    TinyCmd_buf.length = 0; 
+    TinyCmd_buf.arg[0] = NULL;
+    TinyCmd_buf.buf[0] = '\0';
     return TINYCMD_FAILED;
 }
 
+//TinyCmd_Status TinyCmd_Add_Cmd(TinyCmd_Command* newCmd):
+//Description:Add a new command to the TinyCmdRunning_Cmd list.
+//args:
+//        newCmd: Pointer to the TinyCmd_Command struct containing the command and callback function.
+//Returns:
+//        TINYCMD_SUCCESS: Command added successfully.
+//        TINYCMD_FAILED: Command addition failed.
 TinyCmd_Status TinyCmd_Add_Cmd(TinyCmd_Command* newCmd)
 {
     if (newCmd == NULL){
         return TINYCMD_FAILED;
     }
     else{
-        TinyCmdRunning_Cmd.list[TinyCmdRunning_Cmd.length++] = newCmd;
-        return TINYCMD_SUCCESS;
+        if(newCmd->callback != NULL){
+            TinyCmdRunning_Cmd.list[TinyCmdRunning_Cmd.length++] = newCmd;
+            return TINYCMD_SUCCESS;
+        }
+        else{
+            return TINYCMD_FAILED;
+        }
     }
 }
 
+
+//TinyCmd_Status TinyCmd_Arg_Check(char* arg1,TinyCmd_Counter_Type p_arg2):
+//Description:Check if the argument at position p_arg2 matches the given argument arg1.
+//args:
+//        arg1: Pointer to the argument string to compare.
+//        p_arg2: Position of the argument in the TinyCmd_buf.arg array.
+//Returns:
+//        TINYCMD_SUCCESS: Argument matches.
+//        TINYCMD_FAILED: Argument does not match.
 TinyCmd_Status TinyCmd_Arg_Check(char* arg1,TinyCmd_Counter_Type p_arg2)
 {
-    if(!TinyCmd_strcmp(arg1,TinyCmd_buf.arg[p_arg2])){
+    if(!TinyCmd_strcmp(arg1,TinyCmd_buf.arg[p_arg2]))
+    {
         return TINYCMD_SUCCESS;
     }
     else{
@@ -205,6 +244,13 @@ TinyCmd_Status TinyCmd_Arg_Check(char* arg1,TinyCmd_Counter_Type p_arg2)
         
 }
 
+//TinyCmd_Status TinyCmd_PutChar(char c):
+//Description:Add a character to the TinyCmd_buf.buf.
+//args:
+//        c: Character to add to the TinyCmd_buf.buf.
+//Returns:
+//        TINYCMD_SUCCESS: Character added successfully.
+//        TINYCMD_FAILED: Character addition failed.
 TinyCmd_Status TinyCmd_PutChar(char c)
 {
     if(TinyCmd_buf.length < CMD_BUF_SIZE){
@@ -216,6 +262,8 @@ TinyCmd_Status TinyCmd_PutChar(char c)
     }
 }
 
+//TinyCmd_Status TinyCmd_trim(char *str)
+//Description:Trim the unnecessary shit(' ','\r','\n') characters from the end of the string.
 static void TinyCmd_trim(char *str) {
     TinyCmd_Counter_Type len = 0;
     while (str[len] != '\0') {
@@ -227,6 +275,13 @@ static void TinyCmd_trim(char *str) {
     }
 }
 
+//TinyCmd_Status TinyCmd_PutString(char* str):
+//Description:Add a string to the TinyCmd_buf.buf.
+//args:
+//        str: String to add to the TinyCmd_buf.buf.
+//Returns:
+//        TINYCMD_SUCCESS: String added successfully.
+//        TINYCMD_FAILED: String addition failed.
 TinyCmd_Status TinyCmd_PutString(char* str)
 {
     TinyCmd_trim(str);
@@ -235,7 +290,7 @@ TinyCmd_Status TinyCmd_PutString(char* str)
     if(length <= CMD_BUF_SIZE){
         TinyCmd_buf.length = length;
         TinyCmd_strcpy(TinyCmd_buf.buf,str);
-	TinyCmd_PutChar('\0');
+	    TinyCmd_PutChar('\0');
         return TINYCMD_SUCCESS;
     }
     else{
@@ -243,6 +298,16 @@ TinyCmd_Status TinyCmd_PutString(char* str)
     }
 }
 
+//char* TinyCmd_Arg_Get(TinyCmd_Counter_Type p_arg2):
+//Description:Get the argument at position p_arg2 from the TinyCmd_buf.arg array.
+//args:
+//        p_arg2: Position of the argument in the TinyCmd_buf.arg array.
+//Returns:
+//        Pointer to the argument string.
+char* TinyCmd_Arg_Get(TinyCmd_Counter_Type p_arg2)
+{
+    return TinyCmd_buf.arg[p_arg2];
+}
 
 
 

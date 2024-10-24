@@ -17,7 +17,7 @@
 /*
  * File: TinyCmd.h
  * Author: Civic_Crab
- * Version: 1.0.0
+ * Version: 1.1.0
  * Created on: 2024-10-24
  *
  * Description:
@@ -28,17 +28,37 @@
 #define __TINYCMD_H__
 
 //Constant for configure TinyCmd
+
+//Length of the command or arguments name
 #define CMD_NAME_LENGTH 8
+
+//Length of the command list with aruments after command
 #define CMD_LIST_SIZE 8
-#define CMD_BUF_SIZE 64
+
+//Length of the command buffer string
+#define CMD_BUF_SIZE (CMD_NAME_LENGTH * CMD_LIST_SIZE + CMD_LIST_SIZE - 1)
+
+//Maximum number of tokens in a command
 #define CMD_MAX_TOKENS 4
+
+//Maximum number of parameters in a command
 #define CMD_MAX_PARAMS (CMD_MAX_TOKENS - 1)
 
+//Global typedefs
 
+//Callback function type You can redefine it as you like
 typedef unsigned char TinyCmd_CallBack_Ret;
+
+//Counter type for TinyCmd(Such as i in for loop)
+//When your Input buffer ecexceeds 255, you need to make this shit bigger.
 typedef unsigned char TinyCmd_Counter_Type;
 
 //Global structs
+
+//TinyCmd Command struct:
+//description: When you are going to add a new command, you need to define a struct like this:
+//command: The command name
+//callback: The callback function pointer
 typedef struct TinyCmd_Command{
 	char command[CMD_NAME_LENGTH];
 	TinyCmd_CallBack_Ret (*callback)(void);	
@@ -56,6 +76,6 @@ TinyCmd_Status TinyCmd_Add_Cmd(TinyCmd_Command* newCmd);
 TinyCmd_Status TinyCmd_Arg_Check(char* arg1,TinyCmd_Counter_Type p_arg2);
 TinyCmd_Status TinyCmd_PutChar(char c);
 TinyCmd_Status TinyCmd_PutString(char* str);
-
+char* TinyCmd_Arg_Get(TinyCmd_Counter_Type p_arg2);
 
 #endif // __TINYCMD_H__
