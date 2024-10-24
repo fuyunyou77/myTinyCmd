@@ -14,7 +14,31 @@ Compile the demo  by`gcc *.c` and run
 
 #### Output
 
+<<<<<<< HEAD
 <img src=".\media\output.jpg" alt="Spell Card" width="400" height="auto">
+=======
+`Input: cmd1
+
+Command1 is called!
+
+
+Input: cmd1 check
+
+Command1 is called!
+
+Position 0 has parameter: check
+
+
+Input: cmd1 check 123 5.5
+
+Command1 is called!
+
+Position 0 has parameter: check
+
+Position 1 has parameter: 123
+
+Position 2 has parameter: 5.500000`
+>>>>>>> c6af6c7c9450e0f22f935d03661aeab59a0f01c0
 
 
 
