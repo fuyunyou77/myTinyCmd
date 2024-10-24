@@ -155,7 +155,7 @@ static TinyCmd_Counter_Type TinyCmd_strlen(const char* str) {
 //Returns:
 //        TINYCMD_SUCCESS: Initialization successful.
 //        TINYCMD_FAILED: Initialization failed.
-TinyCmd_Status Tiny_Command_Handler(void) {
+TinyCmd_Status TinyCmd_Handler(void) {
     TinyCmd_Counter_Type i = 0;
     const char* delims = " ";
     char* context;
@@ -309,6 +309,131 @@ char* TinyCmd_Arg_Get(TinyCmd_Counter_Type p_arg2)
     return TinyCmd_buf.arg[p_arg2];
 }
 
+//char* TinyCmd_Arg_Get_Len(TinyCmd_Counter_Type p_arg2):
+//Description:Get the length of the argument at position p_arg2 from the TinyCmd_buf.arg array.
+//args:
+//        p_arg2: Position of the argument in the TinyCmd_buf.arg array.
+//Returns:
+//        Length of the argument string.
+TinyCmd_Counter_Type TinyCmd_Arg_Get_Len(TinyCmd_Counter_Type p_arg2)
+{
+    return TinyCmd_strlen(TinyCmd_buf.arg[p_arg2]);
+}
 
+static TinyCmd_Status TinyCmd_isdigit(int c) {
+    return (c >= '0' && c <= '9');
+}
 
+static TinyCmd_Status TinyCmd_isspace(int c) {
+    return (c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r');
+}
 
+//int TinyCmd_Str_To_int(const char* str):
+//Description:Convert a string to an integer.
+//args:
+//        str: String to convert.
+//Returns:
+//        Integer value of the string.
+int TinyCmd_Str_To_int(const char* str) {
+    if (str == NULL) {
+        return 0;
+    }
+
+    while (TinyCmd_isspace(*str)) {
+        str++;
+    }
+
+    int sign = 1;
+    if (*str == '-') {
+        sign = -1;
+        str++;
+    } else if (*str == '+') {
+        str++;
+    }
+
+    int result = 0;
+    while (TinyCmd_isdigit(*str)) {
+        int digit = *str - '0';
+
+        if (result > (CMD_INT_MAX - digit) / 10) {
+            return (sign == 1) ? CMD_INT_MAX : CMD_INT_MIN;
+        }
+
+        result = result * 10 + digit;
+        str++;
+    }
+
+    return result * sign;
+}
+
+//double TinyCmd_Str_To_Float(const char* str):
+//Description:Convert a string to a floating-point number.
+//args:
+//        str: String to convert.
+//Returns:
+//        Floating-point value of the string.
+double TinyCmd_Str_To_Float(const char* str) 
+{
+    if (str == NULL) {
+        return 0.0;
+    }
+
+    while (TinyCmd_isspace(*str)) {
+        str++;
+    }
+
+    int sign = 1;
+    if (*str == '-') {
+        sign = -1;
+        str++;
+    } else if (*str == '+') {
+        str++;
+    }
+
+    double integer_part = 0;
+    while (TinyCmd_isdigit(*str)) {
+        int digit = *str - '0';
+        integer_part = integer_part * 10 + digit;
+        str++;
+    }
+
+    if (*str == '.') {
+        str++;
+    } else {
+        return integer_part * sign;
+    }
+
+    double fractional_part = 0;
+    double divisor = 1.0;
+    while (TinyCmd_isdigit(*str)) {
+        int digit = *str - '0';
+        fractional_part = fractional_part * 10 + digit;
+        divisor *= 10;
+        str++;
+    }
+
+    double result = integer_part + (fractional_part / divisor);
+    return result * sign;
+}
+
+//int TinyCmd_Arg_To_Int(TinyCmd_Counter_Type p_arg2):
+//Description:Convert the argument at position p_arg2 to an integer.
+//args:
+//        p_arg2: Position of the argument in the TinyCmd_buf.arg array.
+//Returns:
+//        Integer value of the argument.
+int TinyCmd_Arg_To_Int(TinyCmd_Counter_Type p_arg2)
+{
+    return TinyCmd_Str_To_int(TinyCmd_Arg_Get(p_arg2));
+}
+
+//double TinyCmd_Arg_To_Float(TinyCmd_Counter_Type p_arg2):
+//Description:Convert the argument at position p_arg2 to a floating-point number.
+//args:
+//        p_arg2: Position of the argument in the TinyCmd_buf.arg array.
+//Returns:
+//        Floating-point value of the argument.
+double TinyCmd_Arg_To_Float(TinyCmd_Counter_Type p_arg2)
+{
+    return TinyCmd_Str_To_Float(TinyCmd_Arg_Get(p_arg2));
+}

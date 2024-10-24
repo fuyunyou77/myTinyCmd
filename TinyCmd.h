@@ -44,6 +44,10 @@
 //Maximum number of parameters in a command
 #define CMD_MAX_PARAMS (CMD_MAX_TOKENS - 1)
 
+//Maximum and minimum integer values
+#define CMD_INT_MAX 32767
+#define CMD_INT_MIN -32768
+
 //Global typedefs
 
 //Callback function type You can redefine it as you like
@@ -71,11 +75,17 @@ typedef enum{
 }TinyCmd_Status;
 
 //Global functions
-TinyCmd_Status Tiny_Command_Handler(void);
+TinyCmd_Status TinyCmd_Handler(void);
 TinyCmd_Status TinyCmd_Add_Cmd(TinyCmd_Command* newCmd);
 TinyCmd_Status TinyCmd_Arg_Check(char* arg1,TinyCmd_Counter_Type p_arg2);
 TinyCmd_Status TinyCmd_PutChar(char c);
 TinyCmd_Status TinyCmd_PutString(char* str);
+TinyCmd_Counter_Type TinyCmd_Arg_Get_Len(TinyCmd_Counter_Type p_arg2);
 char* TinyCmd_Arg_Get(TinyCmd_Counter_Type p_arg2);
+int TinyCmd_Str_To_int(const char* str);
+double TinyCmd_Str_To_Float(const char* str);
+int TinyCmd_Arg_To_Int(TinyCmd_Counter_Type p_arg2);
+double TinyCmd_Arg_To_Float(TinyCmd_Counter_Type p_arg2);
+
 
 #endif // __TINYCMD_H__
