@@ -14,8 +14,7 @@ Compile the demo  by`gcc *.c` and run
 
 #### Output
 
-<<<<<<< HEAD
-<img src=".\media\output.jpg" alt="Spell Card" width="400" height="auto">
+<img src=".\media\output.jpg" alt="Outputd" width="400" height="auto">
 =======
 `Input: cmd1
 
