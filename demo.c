@@ -47,8 +47,8 @@ TinyCmd_CallBack_Ret Cmd1_Callback(void)
 
     
     //Get integer number from 2nd aurgument and do something
-    int ArgInt = TinyCmd_Arg_To_Int(1);
-    if(ArgInt)
+    int ArgInt = 0;
+    if(TinyCmd_Arg_To_Int(1,&ArgInt))
     {
         //Do something here when the command with argument "check" is called
         //Your code here......
@@ -56,8 +56,8 @@ TinyCmd_CallBack_Ret Cmd1_Callback(void)
     }
 
     //Get float number from 3rd aurgument and do something
-    float ArgFloat = TinyCmd_Arg_To_Float(2);
-    if(ArgFloat)
+    float ArgFloat = 0;
+    if(TinyCmd_Arg_To_Float(2,&ArgFloat))
     {
         //Do something here when the command with argument "check" is called
         //Your code here......
@@ -88,7 +88,7 @@ int main(void)
     while(1)
     {
         //Print the prompt to the user
-        printf("Input: ");
+        printf("\nInput: ");
 
         //Get the input string from the user
         //You also can do it in another way

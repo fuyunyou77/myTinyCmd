@@ -70,8 +70,8 @@ typedef struct TinyCmd_Command{
 
 //Global enums
 typedef enum{
-	TINYCMD_FAILED = -1,
-	TINYCMD_SUCCESS = 0,
+	TINYCMD_FAILED = 0,
+	TINYCMD_SUCCESS = 1,
 }TinyCmd_Status;
 
 //Global functions
@@ -81,11 +81,12 @@ TinyCmd_Status TinyCmd_Arg_Check(char* arg1,TinyCmd_Counter_Type p_arg2);
 TinyCmd_Status TinyCmd_PutChar(char c);
 TinyCmd_Status TinyCmd_PutString(char* str);
 TinyCmd_Counter_Type TinyCmd_Arg_Get_Len(TinyCmd_Counter_Type p_arg2);
+TinyCmd_Status TinyCmd_Arg_To_Int(TinyCmd_Counter_Type p_arg2,int* number);
+TinyCmd_Status TinyCmd_Arg_To_Float(TinyCmd_Counter_Type p_arg2,float* number);
 char* TinyCmd_Arg_Get(TinyCmd_Counter_Type p_arg2);
 int TinyCmd_Str_To_int(const char* str);
 double TinyCmd_Str_To_Float(const char* str);
-int TinyCmd_Arg_To_Int(TinyCmd_Counter_Type p_arg2);
-double TinyCmd_Arg_To_Float(TinyCmd_Counter_Type p_arg2);
+
 
 
 #endif // __TINYCMD_H__

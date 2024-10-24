@@ -148,6 +148,16 @@ static TinyCmd_Counter_Type TinyCmd_strlen(const char* str) {
     return p - str;
 }
 
+static TinyCmd_Status TinyCmd_Buf_Clear(void)
+{
+    TinyCmd_Counter_Type i = 0;
+    for(i = 0; i < CMD_MAX_PARAMS; i++) {
+        TinyCmd_buf.arg[i] = NULL;
+    }
+    TinyCmd_buf.length = 0;
+    TinyCmd_buf.buf[0] = '\0';
+    return TINYCMD_SUCCESS;
+}
 //Global functions
 
 //TinyCmd_Status TinyCmd_Init(void):
@@ -186,17 +196,13 @@ TinyCmd_Status TinyCmd_Handler(void) {
         {
             TinyCmdRunning_Cmd.list[i]->callback();
             //Clear TinyCmd_buf
-            TinyCmd_buf.length = 0; 
-            TinyCmd_buf.arg[0] = NULL;
-            TinyCmd_buf.buf[0] = '\0';
+            TinyCmd_Buf_Clear();
             return TINYCMD_SUCCESS;
         }
     }
 
     //Clear TinyCmd_buf
-    TinyCmd_buf.length = 0; 
-    TinyCmd_buf.arg[0] = NULL;
-    TinyCmd_buf.buf[0] = '\0';
+    TinyCmd_Buf_Clear();
     return TINYCMD_FAILED;
 }
 
@@ -422,9 +428,15 @@ double TinyCmd_Str_To_Float(const char* str)
 //        p_arg2: Position of the argument in the TinyCmd_buf.arg array.
 //Returns:
 //        Integer value of the argument.
-int TinyCmd_Arg_To_Int(TinyCmd_Counter_Type p_arg2)
+TinyCmd_Status TinyCmd_Arg_To_Int(TinyCmd_Counter_Type p_arg2,int* number)
 {
-    return TinyCmd_Str_To_int(TinyCmd_Arg_Get(p_arg2));
+    if(number!= NULL && TinyCmd_Arg_Get(p_arg2)!= NULL){
+        *number = TinyCmd_Str_To_int(TinyCmd_Arg_Get(p_arg2));
+        return TINYCMD_SUCCESS;
+    }
+    else{
+        return TINYCMD_FAILED;
+    }
 }
 
 //double TinyCmd_Arg_To_Float(TinyCmd_Counter_Type p_arg2):
@@ -433,7 +445,13 @@ int TinyCmd_Arg_To_Int(TinyCmd_Counter_Type p_arg2)
 //        p_arg2: Position of the argument in the TinyCmd_buf.arg array.
 //Returns:
 //        Floating-point value of the argument.
-double TinyCmd_Arg_To_Float(TinyCmd_Counter_Type p_arg2)
+TinyCmd_Status TinyCmd_Arg_To_Float(TinyCmd_Counter_Type p_arg2,float* number)
 {
-    return TinyCmd_Str_To_Float(TinyCmd_Arg_Get(p_arg2));
+    if(number!= NULL && TinyCmd_Arg_Get(p_arg2)!= NULL){
+        *number = TinyCmd_Str_To_Float(TinyCmd_Arg_Get(p_arg2));
+        return TINYCMD_SUCCESS;
+    }
+    else{
+        return TINYCMD_FAILED;
+    }
 }
