@@ -14,11 +14,19 @@ Compile the demo  by`gcc *.c` and run
 
 #### Output
 
-<img src=".\media\output.jpg" alt="Outputd" width="400" height="auto">
+<img src=".\media\output.jpg" alt="Output" width="400" height="auto">
 
 
 You can see more detail in demo.c
 
 
+
+### Test on STM32F103C8T6
+
+The test schematic is shown below.
+
+Demo path:`.\Demo\STM32F103C8T6\Demo_ARMCompiler6`
+
+<img src=".\media\TinyCmd_STM32_Demo.jpg" alt="Schematic" width="400" height="auto">
 
 #### Coming soon...

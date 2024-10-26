@@ -31,25 +31,19 @@
 #endif //NULL
 
 //Local structs
-typedef struct Tiny_Command_List {
+typedef struct TinyCmd_List {
     TinyCmd_Command* list[CMD_LIST_SIZE];
     TinyCmd_Counter_Type length;
 
-}Tiny_Command_List;
-
-typedef struct Tiny_Command_inuput{
-	char buf[64];
-	char* arg[CMD_MAX_PARAMS];
-	TinyCmd_Counter_Type length;
-}Tiny_Command_input;
+}TinyCmd_List;
 
 //Local Variables
 static char* strtok_next = NULL; 
-Tiny_Command_List TinyCmdRunning_Cmd;
+TinyCmd_List TinyCmdRunning_Cmd;
 TinyCmd_Counter_Type token_count;
 
 //Global Variables
-Tiny_Command_input TinyCmd_buf;
+TinyCmd_Buffer TinyCmd_buf;
 
 //Local Function
 
@@ -70,18 +64,19 @@ static int TinyCmd_strcmp(const char* str1, const char* str2) {
     return (unsigned char)*str1 - (unsigned char)*str2;
 }
 
-static char* TinyCmd_strcpy(char* dest, const char* src) {
-    if (dest == NULL || src == NULL) {
-        return NULL;
-    }
+//Unused function
+// static char* TinyCmd_strcpy(char* dest, const char* src) {
+//     if (dest == NULL || src == NULL) {
+//         return NULL;
+//     }
 
-    char* dest_ptr = dest;
-    while ((*dest_ptr++ = *src++) != '\0') {
+//     char* dest_ptr = dest;
+//     while ((*dest_ptr++ = *src++) != '\0') {
 
-	}
+// 	}
 
-    return dest;
-}
+//     return dest;
+// }
 
 static char* TinyCmd_strchr(const char* str, int c) {
     if (str == NULL) {
@@ -154,10 +149,27 @@ static TinyCmd_Status TinyCmd_Buf_Clear(void)
     for(i = 0; i < CMD_MAX_PARAMS; i++) {
         TinyCmd_buf.arg[i] = NULL;
     }
+    for(i = 0; i < CMD_BUF_SIZE; i++) {
+        TinyCmd_buf.input[i] = '\0';
+    }
     TinyCmd_buf.length = 0;
-    TinyCmd_buf.buf[0] = '\0';
+    
     return TINYCMD_SUCCESS;
 }
+
+//TinyCmd_Status TinyCmd_trim(char *str)
+//Description:Trim the unnecessary shit(' ','\r','\n') characters from the end of the string.
+static void TinyCmd_trim(char *str) {
+    TinyCmd_Counter_Type len = 0;
+    while (str[len] != '\0') {
+        len++;
+    }
+
+    while (len > 0 && (str[len - 1] == ' ' || str[len - 1] == '\r' || str[len - 1] == '\n')) {
+        str[--len] = '\0';
+    }
+}
+
 //Global functions
 
 //TinyCmd_Status TinyCmd_Init(void):
@@ -170,8 +182,10 @@ TinyCmd_Status TinyCmd_Handler(void) {
     const char* delims = " ";
     char* context;
 
+    TinyCmd_trim(TinyCmd_buf.input);
+
     //Read Command
-    char* token = TinyCmd_strtok_s(TinyCmd_buf.buf, delims, &context);
+    char* token = TinyCmd_strtok_s(TinyCmd_buf.input, delims, &context);
     char* command = token;
 
     //Read arguments
@@ -230,7 +244,7 @@ TinyCmd_Status TinyCmd_Add_Cmd(TinyCmd_Command* newCmd)
 }
 
 
-//TinyCmd_Status TinyCmd_Arg_Check(char* arg1,TinyCmd_Counter_Type p_arg2):
+//TinyCmd_Status TinyCmd_Arg_Check(char* arg1,TinyCmd_Counter_Type p_arg):
 //Description:Check if the argument at position p_arg2 matches the given argument arg1.
 //args:
 //        arg1: Pointer to the argument string to compare.
@@ -250,80 +264,15 @@ TinyCmd_Status TinyCmd_Arg_Check(char* arg1,TinyCmd_Counter_Type p_arg2)
         
 }
 
-//TinyCmd_Status TinyCmd_PutChar(char c):
-//Description:Add a character to the TinyCmd_buf.buf.
+//char* TinyCmd_Arg_Get_Len(TinyCmd_Counter_Type p_arg):
+//Description:Get the length of the argument at position p_arg from the TinyCmd_buf.arg array.
 //args:
-//        c: Character to add to the TinyCmd_buf.buf.
-//Returns:
-//        TINYCMD_SUCCESS: Character added successfully.
-//        TINYCMD_FAILED: Character addition failed.
-TinyCmd_Status TinyCmd_PutChar(char c)
-{
-    if(TinyCmd_buf.length < CMD_BUF_SIZE){
-        TinyCmd_buf.buf[TinyCmd_buf.length++] = c;
-        return TINYCMD_SUCCESS;
-    }
-    else{
-        return TINYCMD_FAILED;
-    }
-}
-
-//TinyCmd_Status TinyCmd_trim(char *str)
-//Description:Trim the unnecessary shit(' ','\r','\n') characters from the end of the string.
-static void TinyCmd_trim(char *str) {
-    TinyCmd_Counter_Type len = 0;
-    while (str[len] != '\0') {
-        len++;
-    }
-
-    while (len > 0 && (str[len - 1] == ' ' || str[len - 1] == '\r' || str[len - 1] == '\n')) {
-        str[--len] = '\0';
-    }
-}
-
-//TinyCmd_Status TinyCmd_PutString(char* str):
-//Description:Add a string to the TinyCmd_buf.buf.
-//args:
-//        str: String to add to the TinyCmd_buf.buf.
-//Returns:
-//        TINYCMD_SUCCESS: String added successfully.
-//        TINYCMD_FAILED: String addition failed.
-TinyCmd_Status TinyCmd_PutString(char* str)
-{
-    TinyCmd_trim(str);
-    TinyCmd_Counter_Type length = TinyCmd_strlen(str);
-    
-    if(length <= CMD_BUF_SIZE){
-        TinyCmd_buf.length = length;
-        TinyCmd_strcpy(TinyCmd_buf.buf,str);
-	    TinyCmd_PutChar('\0');
-        return TINYCMD_SUCCESS;
-    }
-    else{
-        return TINYCMD_FAILED;
-    }
-}
-
-//char* TinyCmd_Arg_Get(TinyCmd_Counter_Type p_arg2):
-//Description:Get the argument at position p_arg2 from the TinyCmd_buf.arg array.
-//args:
-//        p_arg2: Position of the argument in the TinyCmd_buf.arg array.
-//Returns:
-//        Pointer to the argument string.
-char* TinyCmd_Arg_Get(TinyCmd_Counter_Type p_arg2)
-{
-    return TinyCmd_buf.arg[p_arg2];
-}
-
-//char* TinyCmd_Arg_Get_Len(TinyCmd_Counter_Type p_arg2):
-//Description:Get the length of the argument at position p_arg2 from the TinyCmd_buf.arg array.
-//args:
-//        p_arg2: Position of the argument in the TinyCmd_buf.arg array.
+//        p_arg: Position of the argument in the TinyCmd_buf.arg array.
 //Returns:
 //        Length of the argument string.
-TinyCmd_Counter_Type TinyCmd_Arg_Get_Len(TinyCmd_Counter_Type p_arg2)
+TinyCmd_Counter_Type TinyCmd_Arg_Get_Len(TinyCmd_Counter_Type p_arg)
 {
-    return TinyCmd_strlen(TinyCmd_buf.arg[p_arg2]);
+    return TinyCmd_strlen(TinyCmd_buf.arg[p_arg]);
 }
 
 static TinyCmd_Status TinyCmd_isdigit(int c) {
@@ -361,8 +310,8 @@ int TinyCmd_Str_To_int(const char* str) {
     while (TinyCmd_isdigit(*str)) {
         int digit = *str - '0';
 
-        if (result > (CMD_INT_MAX - digit) / 10) {
-            return (sign == 1) ? CMD_INT_MAX : CMD_INT_MIN;
+        if (result > (CMD_INT32_MAX - digit) / 10) {
+            return (sign == 1) ? CMD_INT32_MAX : CMD_INT32_MIN;
         }
 
         result = result * 10 + digit;
@@ -422,16 +371,16 @@ double TinyCmd_Str_To_Float(const char* str)
     return result * sign;
 }
 
-//int TinyCmd_Arg_To_Int(TinyCmd_Counter_Type p_arg2):
-//Description:Convert the argument at position p_arg2 to an integer.
+//int TinyCmd_Arg_To_Int(TinyCmd_Counter_Type p_arg):
+//Description:Convert the argument at position p_arg to an integer.
 //args:
-//        p_arg2: Position of the argument in the TinyCmd_buf.arg array.
+//        p_arg: Position of the argument in the TinyCmd_buf.arg array.
 //Returns:
 //        Integer value of the argument.
-TinyCmd_Status TinyCmd_Arg_To_Int(TinyCmd_Counter_Type p_arg2,int* number)
+TinyCmd_Status TinyCmd_Arg_To_Int32(TinyCmd_Counter_Type p_arg,int32_t* number)
 {
-    if(number!= NULL && TinyCmd_Arg_Get(p_arg2)!= NULL){
-        *number = TinyCmd_Str_To_int(TinyCmd_Arg_Get(p_arg2));
+    if(number!= NULL && TinyCmd_buf.arg[p_arg]!= NULL){
+        *number = TinyCmd_Str_To_int(TinyCmd_buf.arg[p_arg]);
         return TINYCMD_SUCCESS;
     }
     else{
@@ -439,16 +388,64 @@ TinyCmd_Status TinyCmd_Arg_To_Int(TinyCmd_Counter_Type p_arg2,int* number)
     }
 }
 
-//double TinyCmd_Arg_To_Float(TinyCmd_Counter_Type p_arg2):
-//Description:Convert the argument at position p_arg2 to a floating-point number.
+TinyCmd_Status TinyCmd_Arg_To_Int16(TinyCmd_Counter_Type p_arg,int16_t* number)
+{
+    if(number!= NULL && TinyCmd_buf.arg[p_arg]!= NULL){
+        int temp = TinyCmd_Str_To_int(TinyCmd_buf.arg[p_arg]);
+        *number = TinyCmd_Str_To_int(TinyCmd_buf.arg[p_arg]); 
+
+        if(temp > CMD_INT16_MAX){
+            *number = CMD_INT16_MAX;
+            return TINYCMD_SUCCESS;
+        }
+        else if(temp < CMD_INT16_MIN){
+            *number = CMD_INT16_MIN;
+            return TINYCMD_SUCCESS;
+        }
+        else{
+            *number = (int16_t)temp;
+            return TINYCMD_SUCCESS;
+        }
+    }
+    else{
+        return TINYCMD_FAILED;
+    }
+}
+
+TinyCmd_Status TinyCmd_Arg_To_Int8(TinyCmd_Counter_Type p_arg,int8_t* number)
+{
+    if(number!= NULL && TinyCmd_buf.arg[p_arg]!= NULL){
+        int temp = TinyCmd_Str_To_int(TinyCmd_buf.arg[p_arg]);
+        *number = TinyCmd_Str_To_int(TinyCmd_buf.arg[p_arg]); 
+
+        if(temp > CMD_INT8_MAX){
+            *number = CMD_INT8_MAX;
+            return TINYCMD_SUCCESS;
+        }
+        else if(temp < CMD_INT8_MIN){
+            *number = CMD_INT8_MIN;
+            return TINYCMD_SUCCESS;
+        }
+        else{
+            *number = (int16_t)temp;
+            return TINYCMD_SUCCESS;
+        }
+    }
+    else{
+        return TINYCMD_FAILED;
+    }
+}
+
+//double TinyCmd_Arg_To_Float(TinyCmd_Counter_Type p_arg):
+//Description:Convert the argument at position p_arg to a floating-point number.
 //args:
-//        p_arg2: Position of the argument in the TinyCmd_buf.arg array.
+//        p_arg: Position of the argument in the TinyCmd_buf.arg array.
 //Returns:
 //        Floating-point value of the argument.
-TinyCmd_Status TinyCmd_Arg_To_Float(TinyCmd_Counter_Type p_arg2,float* number)
+TinyCmd_Status TinyCmd_Arg_To_Float(TinyCmd_Counter_Type p_arg,float* number)
 {
-    if(number!= NULL && TinyCmd_Arg_Get(p_arg2)!= NULL){
-        *number = TinyCmd_Str_To_Float(TinyCmd_Arg_Get(p_arg2));
+    if(number!= NULL && TinyCmd_buf.arg[p_arg]!= NULL){
+        *number = TinyCmd_Str_To_Float(TinyCmd_buf.arg[p_arg]);
         return TINYCMD_SUCCESS;
     }
     else{

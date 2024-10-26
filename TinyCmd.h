@@ -45,8 +45,12 @@
 #define CMD_MAX_PARAMS (CMD_MAX_TOKENS - 1)
 
 //Maximum and minimum integer values
-#define CMD_INT_MAX 32767
-#define CMD_INT_MIN -32768
+#define CMD_INT8_MAX 127
+#define CMD_INT8_MIN -128
+#define CMD_INT16_MAX 32767
+#define CMD_INT16_MIN -32768
+#define CMD_INT32_MAX 2147483647
+#define CMD_INT32_MIN -2147483648
 
 //Global typedefs
 
@@ -57,7 +61,27 @@ typedef unsigned char TinyCmd_CallBack_Ret;
 //When your Input buffer ecexceeds 255, you need to make this shit bigger.
 typedef unsigned char TinyCmd_Counter_Type;
 
+// 8-bit signed integer
+typedef signed char int8_t;
+
+// 16-bit signed integer
+typedef short int16_t;
+
+// 32-bit signed integer
+typedef int int32_t;
+
 //Global structs
+
+//TinyCmd input buffer struct:
+//description: This struct is used to store the input buffer and the arguments
+//length: The length of the input buffer
+//arg: The pointer to the arguments
+//input: The input buffer string
+typedef struct TinyCmd_inuput{
+	char input[CMD_BUF_SIZE];
+	char* arg[CMD_MAX_PARAMS];
+	TinyCmd_Counter_Type length;
+}TinyCmd_Buffer;
 
 //TinyCmd Command struct:
 //description: When you are going to add a new command, you need to define a struct like this:
@@ -74,16 +98,18 @@ typedef enum{
 	TINYCMD_SUCCESS = 1,
 }TinyCmd_Status;
 
+//Global variables
+extern TinyCmd_Buffer TinyCmd_buf;
+
 //Global functions
 TinyCmd_Status TinyCmd_Handler(void);
 TinyCmd_Status TinyCmd_Add_Cmd(TinyCmd_Command* newCmd);
 TinyCmd_Status TinyCmd_Arg_Check(char* arg1,TinyCmd_Counter_Type p_arg2);
-TinyCmd_Status TinyCmd_PutChar(char c);
-TinyCmd_Status TinyCmd_PutString(char* str);
-TinyCmd_Counter_Type TinyCmd_Arg_Get_Len(TinyCmd_Counter_Type p_arg2);
-TinyCmd_Status TinyCmd_Arg_To_Int(TinyCmd_Counter_Type p_arg2,int* number);
-TinyCmd_Status TinyCmd_Arg_To_Float(TinyCmd_Counter_Type p_arg2,float* number);
-char* TinyCmd_Arg_Get(TinyCmd_Counter_Type p_arg2);
+TinyCmd_Counter_Type TinyCmd_Arg_Get_Len(TinyCmd_Counter_Type p_arg);
+TinyCmd_Status TinyCmd_Arg_To_Int32(TinyCmd_Counter_Type p_arg,int32_t* number);
+TinyCmd_Status TinyCmd_Arg_To_Int16(TinyCmd_Counter_Type p_arg,int16_t* number);
+TinyCmd_Status TinyCmd_Arg_To_Int8(TinyCmd_Counter_Type p_arg,int8_t* number);
+TinyCmd_Status TinyCmd_Arg_To_Float(TinyCmd_Counter_Type p_arg,float* number);
 int TinyCmd_Str_To_int(const char* str);
 double TinyCmd_Str_To_Float(const char* str);
 

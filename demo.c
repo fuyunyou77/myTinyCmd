@@ -47,8 +47,8 @@ TinyCmd_CallBack_Ret Cmd1_Callback(void)
 
     
     //Get integer number from 2nd aurgument and do something
-    int ArgInt = 0;
-    if(TinyCmd_Arg_To_Int(1,&ArgInt))
+    int8_t ArgInt = 0;
+    if(TinyCmd_Arg_To_Int8(1,&ArgInt))
     {
         //Do something here when the command with argument "check" is called
         //Your code here......
@@ -93,12 +93,7 @@ int main(void)
         //Get the input string from the user
         //You also can do it in another way
         //For instance in microcontroller,you can use UART or other serial port to get the input string
-        fgets(buffer,CMD_BUF_SIZE,stdin);
-
-        //Put the input string to the TinyCmd,TinyCmd_PutString 
-        //function will trim the string and remove the '\n' character for you
-        //so you don't need to do it manually.
-        TinyCmd_PutString(buffer);
+        fgets(TinyCmd_buf.input,CMD_BUF_SIZE,stdin);
 
         //After you put the input string to the TinyCmd,
         //Call Tiny_Command_Handler function to handle the input string
