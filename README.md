@@ -1,4 +1,4 @@
-# About
+.# About
 TinyCmd is a compact command module that running on microcontrollers. It provide a bash-like control system with callback function.
 
 
@@ -14,7 +14,11 @@ Compile the demo  by`gcc *.c` and run
 
 #### Output
 
+<<<<<<< HEAD
 <img src=".\media\output.jpg" alt="Output" width="400" height="auto">
+=======
+<img src="\media\output.jpg" alt="Output" width="400" height="auto">
+>>>>>>> ad061525c38cc71b7da6e8436fe2a24f803c19f5
 
 
 You can see more detail in demo.c
