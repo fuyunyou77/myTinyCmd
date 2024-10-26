@@ -15,7 +15,7 @@ Compile the demo  by`gcc *.c` and run
 #### Output
 
 
-<img src=".\media\output.jpg" alt="Output" width="400" height="auto">
+<img src=".\media\Output.jpg" alt="Output" width="400" height="auto">
 =======
 
 You can see more detail in demo.c
