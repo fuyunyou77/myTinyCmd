@@ -16,8 +16,6 @@ Compile the demo  by`gcc *.c` and run
 
 
 <img src=".\media\Output.jpg" alt="Output" width="400" height="auto">
-=======
-
 You can see more detail in demo.c
 
 
