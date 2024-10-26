@@ -28,4 +28,14 @@ Demo path:`.\Demo\STM32F103C8T6\Demo_ARMCompiler6`
 
 <img src=".\media\TinyCmd_STM32_Demo.jpg" alt="Schematic" width="400" height="auto">
 
+### Test on Arduino Uno
+
+The test schematic is shown below.
+
+Demo path:`.\Demo\STM32F103C8T6\Demo_ARMCompiler6`
+
+<img src=".\media\TinyCmd_Arduino_Uno.jpg" alt="Schematic" width="400" height="auto">
+
+
+
 #### Coming soon...

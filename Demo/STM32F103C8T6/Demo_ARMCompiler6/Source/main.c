@@ -27,10 +27,10 @@ TinyCmd_CallBack_Ret LED_Callback(void)
 	else if(TinyCmd_Arg_Check("OFF",0) == TINYCMD_SUCCESS)
 	{
 		GPIO_WriteBit(GPIOA,GPIO_Pin_1,Bit_RESET);
-		return TINYCMD_FAILED;
+		return TINYCMD_SUCCESS;
 	}
-	//Command: LED Blink i
-	//Effect: LED on PA1 blink i times.
+	//Command: LED Blink n_times
+	//Effect: LED on PA1 blink n_times .
 	else if(TinyCmd_Arg_Check("Blink",0))
 	{
 		int8_t n_times = 0;
