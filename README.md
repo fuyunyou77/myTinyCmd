@@ -32,7 +32,7 @@ Demo path:`.\Demo\STM32F103C8T6\Demo_ARMCompiler6`
 
 The test schematic is shown below.
 
-Demo path:`.\Demo\STM32F103C8T6\Demo_ARMCompiler6`
+Demo path:`.\Demo\Arduino\ATMEGA328P`
 
 <img src=".\media\TinyCmd_Arduino_Uno.jpg" alt="Schematic" width="400" height="auto">
 
