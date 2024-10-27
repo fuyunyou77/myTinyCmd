@@ -44,25 +44,24 @@
 #define DBL_MAX 1.7976931348623157e+308
 #endif //LIMITS_H
 
-//Local structs
+//Local structs****************************************************************//
 typedef struct TinyCmd_List {
     TinyCmd_Command* list[CMD_LIST_SIZE];
     TinyCmd_Counter_Type length;
 
 }TinyCmd_List;
 
-//Local Variables
+//Local Variables****************************************************************//
 static char* strtok_next = NULL; 
 TinyCmd_List TinyCmdRunning_Cmd;
 TinyCmd_Counter_Type token_count;
 
-//Global Variables
+//Global Variables****************************************************************//
 TinyCmd_Buffer TinyCmd_buf;
 SendCharFunc TinyCmd_SendChar = NULL;
 
-//Local Function
+//Local Function****************************************************************//
 
-//If <string.h> is included,TinyCmd will use functions in <string.h>,instead of the following functions.
 static int TinyCmd_strcmp(const char* str1, const char* str2) {
     if (str1 == NULL || str2 == NULL) {
         return -1;
@@ -234,7 +233,7 @@ static TinyCmd_Status str_to_int(const char* str, long long* result, int* sign) 
     return TINYCMD_SUCCESS;
 }
 
-TinyCmd_Status str_to_float(const char* str, double* result) {
+static TinyCmd_Status str_to_float(const char* str, double* result) {
     if (!str || !result) {
         return TINYCMD_FAILED;
     }
@@ -296,22 +295,84 @@ TinyCmd_Status str_to_float(const char* str, double* result) {
     return TINYCMD_SUCCESS;
 }
 
+static void itoa(int value, char* buffer, int base) {
+    char* p = buffer;
+    int sign = (base == 10 && value < 0);
+    unsigned int uvalue = (sign) ? -value : value;
+
+    do {
+        int remainder = uvalue % base;
+        *p++ = (remainder < 10) ? remainder + '0' : remainder + 'a' - 10;
+    } while (uvalue /= base);
+
+    if (sign) {
+        *p++ = '-';
+    }
+
+    *p = '\0';
+    for (int i = 0, j = p - buffer - 1; i < j; i++, j--) {
+        char temp = buffer[i];
+        buffer[i] = buffer[j];
+        buffer[j] = temp;
+    }
+}
+
+static void uitoa(unsigned int value, char* buffer, int base) {
+    char* p = buffer;
+    do {
+        int remainder = value % base;
+        *p++ = (remainder < 10) ? remainder + '0' : remainder + 'a' - 10;
+    } while (value /= base);
+
+    *p = '\0';
+    for (int i = 0, j = p - buffer - 1; i < j; i++, j--) {
+        char temp = buffer[i];
+        buffer[i] = buffer[j];
+        buffer[j] = temp;
+    }
+}
+
+static void dtoa(double value, char* buffer, int precision) {
+    int integer_part = (int)value;
+    double fractional_part = value - integer_part;
+
+    itoa(integer_part, buffer, 10);
+    char* p = buffer + TinyCmd_strlen(buffer);
+
+    *p++ = '.';
+
+    for (int i = 0; i < precision; i++) {
+        fractional_part *= 10;
+        int digit = (int)fractional_part;
+        *p++ = digit + '0';
+        fractional_part -= digit;
+    }
+
+    *p = '\0';
+}
+
+//TinyCmd_Status TinyCmd_SendChar(char c)
+//Description:Send a character to some where user designated.
+static void send_string(const char* str) {
+    while (*str) {
+        CMD_SEND_CHAR(*str++);
+    }
+}
 
 //TinyCmd_Status TinyCmd_trim(char *str)
 //Description:Trim the unnecessary shit(' ','\r','\n') characters from the end of the string.
 static void TinyCmd_trim(char *str) {
-    TinyCmd_Counter_Type len = 0;
-    while (str[len] != '\0') {
-        len++;
-    }
-
+    TinyCmd_Counter_Type len = TinyCmd_strlen(str);
+    
     while (len > 0 && (str[len - 1] == ' ' || str[len - 1] == '\r' || str[len - 1] == '\n')) {
         str[--len] = '\0';
     }
 }
 
-//Global functions
+//Global functions****************************************************************//
 
+//char* TinyCmd_strcpy(char* dest, const char* src) 
+//Description:Copy the string from src to dest.
 char* TinyCmd_strcpy(char* dest, const char* src) 
 {
     if (dest == NULL || src == NULL) {
@@ -498,7 +559,7 @@ TinyCmd_Status TinyCmd_Arg_To_Num(TinyCmd_Counter_Type p_arg, void* out_val, Tin
             if (status != TINYCMD_SUCCESS) {
                 return TINYCMD_FAILED;
             }
-            #if CMD_LIST_SIZE > 9
+            #if CMD_NAME_LENGTH > 9
             if (result > UINT32_MAX) {
                 *(unsigned int*)out_val = UINT32_MAX;
             } else {
@@ -524,8 +585,8 @@ TinyCmd_Status TinyCmd_Arg_To_Num(TinyCmd_Counter_Type p_arg, void* out_val, Tin
             }
             break;
         }
-        //when CMD_LIST_SIZE > 9 a more bigger type is needed
-        #if CMD_LIST_SIZE > 9
+        //when CMD_NAME_LENGTH > 9 a more bigger type is needed
+        #if CMD_NAME_LENGTH > 9
         case TINYCMD_UINT64: {
             unsigned long long result;
             TinyCmd_Status status = str_to_uint(str, &result, &sign);
@@ -544,7 +605,7 @@ TinyCmd_Status TinyCmd_Arg_To_Num(TinyCmd_Counter_Type p_arg, void* out_val, Tin
             *(long long*)out_val = (long long)result;
             break;
         }
-        #endif //CMD_LIST_SIZE > 9
+        #endif //CMD_NAME_LENGTH > 9
         case TINYCMD_FLOAT: {
             double result;
             TinyCmd_Status status = str_to_float(str, &result);
@@ -574,68 +635,8 @@ TinyCmd_Status TinyCmd_Arg_To_Num(TinyCmd_Counter_Type p_arg, void* out_val, Tin
     return TINYCMD_SUCCESS;
 }
 
-void itoa(int value, char* buffer, int base) {
-    char* p = buffer;
-    int sign = (base == 10 && value < 0);
-    unsigned int uvalue = (sign) ? -value : value;
-
-    do {
-        int remainder = uvalue % base;
-        *p++ = (remainder < 10) ? remainder + '0' : remainder + 'a' - 10;
-    } while (uvalue /= base);
-
-    if (sign) {
-        *p++ = '-';
-    }
-
-    *p = '\0';
-    for (int i = 0, j = p - buffer - 1; i < j; i++, j--) {
-        char temp = buffer[i];
-        buffer[i] = buffer[j];
-        buffer[j] = temp;
-    }
-}
-
-void uitoa(unsigned int value, char* buffer, int base) {
-    char* p = buffer;
-    do {
-        int remainder = value % base;
-        *p++ = (remainder < 10) ? remainder + '0' : remainder + 'a' - 10;
-    } while (value /= base);
-
-    *p = '\0';
-    for (int i = 0, j = p - buffer - 1; i < j; i++, j--) {
-        char temp = buffer[i];
-        buffer[i] = buffer[j];
-        buffer[j] = temp;
-    }
-}
-
-void dtoa(double value, char* buffer, int precision) {
-    int integer_part = (int)value;
-    double fractional_part = value - integer_part;
-
-    itoa(integer_part, buffer, 10);
-    char* p = buffer + TinyCmd_strlen(buffer);
-
-    *p++ = '.';
-
-    for (int i = 0; i < precision; i++) {
-        fractional_part *= 10;
-        int digit = (int)fractional_part;
-        *p++ = digit + '0';
-        fractional_part -= digit;
-    }
-
-    *p = '\0';
-}
-
-void send_string(const char* str) {
-    while (*str) {
-        CMD_SEND_CHAR(*str++);
-    }
-}
-
+//TinyCmd_Status TinyCmd_Report(const char* format,...)
+//Description:A printf-like function print the formatted string to somewhere user designated.
 TinyCmd_Status TinyCmd_Report(const char* format, ...) 
 {
     va_list args;
@@ -666,7 +667,7 @@ TinyCmd_Status TinyCmd_Report(const char* format, ...)
                 case 'f': {
                     double value = va_arg(args, double);
                     char num_buffer[64];
-                    dtoa(value, num_buffer, 6); // 默认精度为 6 位小数
+                    dtoa(value, num_buffer, 6);
                     send_string(num_buffer);
                     break;
                 }

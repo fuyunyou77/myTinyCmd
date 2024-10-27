@@ -31,25 +31,21 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
 //This macro is used to send a character to the user
 //If you have a "putchar" function but it has different type from 
 //"typedef void (*SendCharFunc)(char c);" such as "int (*SendCharFunc)(char c)"
 //You can redefine this function by you "putchar" function to prevent the warrings.
 #define CMD_SEND_CHAR(c) TinyCmd_SendChar(c)
 
-//Constant for configure TinyCmd
+//Constant for configure TinyCmd****************************************************************//
 
 #define CMD_RPT_BUF_SIZE 255
 
 //Length of the command or arguments name
 #define CMD_NAME_LENGTH 8
 
-//Length of the aruments after command
-#define CMD_LIST_SIZE 6
-
-//Length of the command buffer string
-#define CMD_BUF_SIZE (CMD_NAME_LENGTH * CMD_LIST_SIZE + CMD_LIST_SIZE - 1)
+//Total amount of avilable commands in the list
+#define CMD_LIST_SIZE  6
 
 //Maximum number of tokens in a command
 #define CMD_MAX_TOKENS 4
@@ -57,7 +53,10 @@ extern "C" {
 //Maximum number of parameters in a command
 #define CMD_MAX_PARAMS (CMD_MAX_TOKENS - 1)
 
-//Global typedefs
+//Length of the command buffer string
+#define CMD_BUF_SIZE (CMD_NAME_LENGTH * CMD_MAX_TOKENS + CMD_MAX_TOKENS - 1)
+
+//Global typedef****************************************************************************//
 
 //Callback function type You can redefine it as you like
 typedef unsigned char TinyCmd_CallBack_Ret;
@@ -70,7 +69,7 @@ typedef unsigned char TinyCmd_Counter_Type;
 //description: This function is used to send a character to the user,=
 typedef void (*SendCharFunc)(char c);
 
-//Global structs
+//Global structs****************************************************************************//
 
 //TinyCmd input buffer struct:
 //description: This struct is used to store the input buffer and the arguments
@@ -92,7 +91,7 @@ typedef struct TinyCmd_Command{
 	TinyCmd_CallBack_Ret (*callback)(void);	
 }TinyCmd_Command;
 
-//Global enums
+//Global enums****************************************************************************//
 typedef enum{
 	TINYCMD_FAILED = 0,
 	TINYCMD_SUCCESS = 1,
@@ -105,7 +104,7 @@ typedef enum {
     TINYCMD_INT16,
     TINYCMD_UINT32,
     TINYCMD_INT32,
-	#if CMD_LIST_SIZE > 9
+	#if CMD_NAME_LENGTH > 9
     TINYCMD_UINT64,
     TINYCMD_INT64,
 	#endif
@@ -121,12 +120,12 @@ extern SendCharFunc TinyCmd_SendChar;
 
 
 //Global functions
+char* TinyCmd_strcpy(char* dest, const char* src);
 TinyCmd_Status TinyCmd_Handler(void);
 TinyCmd_Status TinyCmd_Add_Cmd(TinyCmd_Command* newCmd);
 TinyCmd_Status TinyCmd_Arg_Check(const char* arg1,TinyCmd_Counter_Type p_arg2);
 TinyCmd_Counter_Type TinyCmd_Arg_Get_Len(TinyCmd_Counter_Type p_arg);
 TinyCmd_Status TinyCmd_Arg_To_Num(TinyCmd_Counter_Type p_arg, void* out_val, TinyCmd_NumType type);
-char* TinyCmd_strcpy(char* dest, const char* src) ;
 TinyCmd_Status TinyCmd_Report(const char* format, ...);
 
 #ifdef __cplusplus
