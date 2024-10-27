@@ -50,7 +50,6 @@ void USART1_Init(void)
 	NVIC_Init(&NVIC_InitStruct);
 	
 	USART_Cmd(USART1,ENABLE);
-	USART1_Write_String("Hello TinyCmd\n");
 }
 
 void USART1_Write_Char(char ch)

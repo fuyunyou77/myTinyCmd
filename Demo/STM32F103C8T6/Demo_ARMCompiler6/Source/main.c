@@ -1,6 +1,7 @@
 #include "USART.h"
 #include "Delay.h"
 #include "TinyCmd.h"
+#include "stm32f10x.h"
 
 void LED_Init(void)
 {
@@ -33,8 +34,9 @@ TinyCmd_CallBack_Ret LED_Callback(void)
 	//Effect: LED on PA1 blink n_times .
 	else if(TinyCmd_Arg_Check("Blink",0))
 	{
-		int8_t n_times = 0;
-		TinyCmd_Arg_To_Int8(1,&n_times);
+		uint8_t n_times = 0;
+		TinyCmd_Arg_To_Num(1,&n_times,TINYCMD_UINT8);
+		TinyCmd_Report("Blink %d times",n_times);
 		for(; n_times > 0; n_times--)
 		{
 			GPIO_WriteBit(GPIOA,GPIO_Pin_1,Bit_SET);
@@ -47,14 +49,20 @@ TinyCmd_CallBack_Ret LED_Callback(void)
 	return TINYCMD_FAILED;
 }
 
+//Create a new command with command:LED and callback function
 TinyCmd_Command Cmd1 = {.command = "LED",.callback = LED_Callback};
 
 int main(void)
 {       
 	USART1_Init();
 	LED_Init();
-	
+	//Put created command into command list is mandatory.
 	TinyCmd_Add_Cmd(&Cmd1);
+	
+	//If you want to use TinyCmd_Report (A simplified printf-like function)
+	//you need to evaluate a function to TinyCmd_SendChar to send a single character
+	TinyCmd_SendChar = USART1_Write_Char;
+	TinyCmd_Report("Hello TinyCmd %d %f",666,3.14);
 	
 	while(1)
 	{
@@ -62,6 +70,8 @@ int main(void)
 	}
 }
 
+//USART interrupt is a nice way to receive command from other device
+//You can also implement this in main loop.
 void USART1_IRQHandler(void)
 {
     if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
@@ -75,8 +85,7 @@ void USART1_IRQHandler(void)
             if (received_byte == '\n' || received_byte == '\r')
             {
 		//Send received string to USART1
-		USART1_Write_String("String received:");
-		USART1_Write_String(TinyCmd_buf.input);
+		TinyCmd_Report("String received:%s",TinyCmd_buf.input);
 		//Run command given by input buffer.
 		TinyCmd_Handler();
             }

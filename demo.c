@@ -17,7 +17,7 @@
 /*
  * File: demo.c
  * Author: Civic_Crab
- * Version: 1.1.0
+ * Version: 1.2.0
  * Created on: 2024-10-24
  *
  * Description:
@@ -29,39 +29,39 @@
 
 TinyCmd_CallBack_Ret Cmd1_Callback(void)
 {
-    printf("Command1 is called!\n");
+    TinyCmd_Report("Command1 is called!\n");
 
     //Check 1st aurgument and do something
     if(TinyCmd_Arg_Check("check",0) == TINYCMD_SUCCESS)
     {
         //Do something here when the command with argument "check" is called
         //Your code here......
-        printf("Position 0 has parameter: check\n");
+        TinyCmd_Report("Position 0 has parameter: check\n");
     }
     else if(TinyCmd_Arg_Check("check2",0) == TINYCMD_SUCCESS)
     {
         //Do something here when the command with argument "check2" is called
         //Your code here......
-        printf("Position 0 has parameter: check2\n");
+        TinyCmd_Report("Position 0 has parameter: check2\n");
     }
 
     
     //Get integer number from 2nd aurgument and do something
-    int8_t ArgInt = 0;
-    if(TinyCmd_Arg_To_Int8(1,&ArgInt))
+    unsigned char ArgInt = 0;
+    if(TinyCmd_Arg_To_Num(1,&ArgInt,TINYCMD_UINT8))
     {
         //Do something here when the command with argument "check" is called
         //Your code here......
-        printf("Position 1 has parameter: %d\n",ArgInt);
+        TinyCmd_Report("Position 1 has parameter: %d\n",ArgInt);
     }
 
     //Get float number from 3rd aurgument and do something
     float ArgFloat = 0;
-    if(TinyCmd_Arg_To_Float(2,&ArgFloat))
+    if(TinyCmd_Arg_To_Num(2,&ArgFloat,TINYCMD_FLOAT))
     {
         //Do something here when the command with argument "check" is called
         //Your code here......
-        printf("Position 2 has parameter: %f\n",ArgFloat);
+        TinyCmd_Report("Position 2 has parameter: %f\n",ArgFloat);
     }
 
 
@@ -69,7 +69,7 @@ TinyCmd_CallBack_Ret Cmd1_Callback(void)
 
 TinyCmd_CallBack_Ret Cmd2_Callback(void)
 {
-    printf("Command1 is called!\n");
+    TinyCmd_Report("Command1 is called!\n");
 }
 
 //Create a new command 
@@ -85,10 +85,16 @@ int main(void)
     TinyCmd_Add_Cmd(&Cmd1);
     TinyCmd_Add_Cmd(&Cmd2);
 
+    //Set the SendCharFunc to the putchar function.
+    //This function provied a way to send a character used by TinyCmd_Report.
+
+    TinyCmd_SendChar = putchar;
+
+
     while(1)
     {
         //Print the prompt to the user
-        printf("\nInput: ");
+        TinyCmd_Report("\nInput: ");
 
         //Get the input string from the user
         //You also can do it in another way
