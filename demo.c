@@ -65,12 +65,26 @@ TinyCmd_CallBack_Ret Cmd1_Callback(void)
     }
 
 
+    if(TinyCmd_Arg_Check("PWM",0) == TINYCMD_SUCCESS)
+    {
+        unsigned char pwm = 0;
+        if(TinyCmd_Arg_To_Num(1,&pwm,TINYCMD_UINT8))
+        {
+            //Do something here when the command with argument "check" is called
+            //Your code here......
+            TinyCmd_Report("Position 1 has parameter: %d\n",pwm);
+        }
+
+    }
+
+
 }
 
 TinyCmd_CallBack_Ret Cmd2_Callback(void)
 {
     TinyCmd_Report("Command1 is called!\n");
 }
+
 
 //Create a new command 
 TinyCmd_Command Cmd1 = {.command = "cmd1",.callback = &Cmd1_Callback};
@@ -88,8 +102,9 @@ int main(void)
     //Set the SendCharFunc to the putchar function.
     //This function provied a way to send a character used by TinyCmd_Report.
 
-    TinyCmd_SendChar = putchar;
+    TinyCmd_SendChar = (void*)putchar;
 
+    TinyCmd_Report("float %f \n int:%d\n",3.14,5);
 
     while(1)
     {
