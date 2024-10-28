@@ -1,6 +1,10 @@
 # About
 TinyCmd is a compact command module that running on microcontrollers. It provide a bash-like control system with callback function.
 
+
+
+<img src=".\media\TinyCmd_Logo.jpg" alt="LOGO" width="400" height="auto">
+
 # Documentation
 
 [README简体中文](./README_ZH.md)		

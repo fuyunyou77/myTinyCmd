@@ -6,6 +6,10 @@ TinyCmd是一个运行在微控制器上的紧凑型命令模块。它使用回�
 
 
 
+<img src=".\media\TinyCmd_Logo.jpg" alt="LOGO" width="400" height="auto">
+
+
+
 #### 小广告
 
 - 你不需要再使用stdio.h和printf重定向了，TinyCmd为你提供了一个类似printf的字符串输出函数，你可以像使用printf那样打印你的到任意位置，完成这个功能只需要1行代码。
