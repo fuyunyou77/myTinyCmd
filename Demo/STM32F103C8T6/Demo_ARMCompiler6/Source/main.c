@@ -21,36 +21,66 @@ TinyCmd_CallBack_Ret LED_Callback(void)
 	if(TinyCmd_Arg_Check("ON",0) == TINYCMD_SUCCESS)
 	{
 		GPIO_WriteBit(GPIOA,GPIO_Pin_1,Bit_SET);
-		return TINYCMD_SUCCESS;
 	}
+	
 	//Command: LED OFF
 	//Effect: Turn off LED on PA1.
 	else if(TinyCmd_Arg_Check("OFF",0) == TINYCMD_SUCCESS)
 	{
 		GPIO_WriteBit(GPIOA,GPIO_Pin_1,Bit_RESET);
-		return TINYCMD_SUCCESS;
 	}
+	
 	//Command: LED Blink n_times
 	//Effect: LED on PA1 blink n_times .
 	else if(TinyCmd_Arg_Check("Blink",0))
 	{
 		uint8_t n_times = 0;
-		TinyCmd_Arg_To_Num(1,&n_times,TINYCMD_UINT8);
-		TinyCmd_Report("Blink %d times",n_times);
-		for(; n_times > 0; n_times--)
+		if(TinyCmd_Arg_To_Num(1,&n_times,TINYCMD_UINT8) == TINYCMD_SUCCESS)
 		{
-			GPIO_WriteBit(GPIOA,GPIO_Pin_1,Bit_SET);
-			Delay_ms(200);
-			GPIO_WriteBit(GPIOA,GPIO_Pin_1,Bit_RESET);
-			Delay_ms(200);
+			for(;n_times > 0; n_times--)
+			{
+				GPIO_WriteBit(GPIOA,GPIO_Pin_1,Bit_SET);
+				Delay_ms(200);
+				GPIO_WriteBit(GPIOA,GPIO_Pin_1,Bit_RESET);
+				Delay_ms(200);
+			}
+		}
+	}
+	
+	return TINYCMD_FAILED;
+}
+
+TinyCmd_CallBack_Ret Motor_Callback(void)
+{
+	if(TinyCmd_Arg_Check("CW",0) == TINYCMD_SUCCESS)
+	{
+		//Motor rotate clockwise
+		//...........
+		TinyCmd_Report("Motor rotate clockwise");
+		uint8_t speed;
+		if(TinyCmd_Arg_To_Num(1,&speed,TINYCMD_UINT8) == TINYCMD_SUCCESS)
+		{
+			TinyCmd_Report("at speed %d\n",speed);
 		}
 		
 	}
-	return TINYCMD_FAILED;
+	else if(TinyCmd_Arg_Check("CCW",0) == TINYCMD_SUCCESS)
+	{
+		//Motor rotate counterclockwise
+		//...........................
+		TinyCmd_Report("Motor rotate counterclockwise");
+		uint8_t speed;
+		if(TinyCmd_Arg_To_Num(1,&speed,TINYCMD_UINT8) == TINYCMD_SUCCESS)
+		{
+			TinyCmd_Report("at speed %d\n",speed);
+		}
+	}
+	return 0;
 }
 
 //Create a new command with command:LED and callback function
 TinyCmd_Command Cmd1 = {.command = "LED",.callback = LED_Callback};
+TinyCmd_Command Cmd2 = {.command = "Motor", .callback = Motor_Callback};
 
 int main(void)
 {       
@@ -58,6 +88,7 @@ int main(void)
 	LED_Init();
 	//Put created command into command list is mandatory.
 	TinyCmd_Add_Cmd(&Cmd1);
+	TinyCmd_Add_Cmd(&Cmd2);
 	
 	//If you want to use TinyCmd_Report (A simplified printf-like function)
 	//you need to evaluate a function to TinyCmd_SendChar to send a single character
@@ -66,7 +97,7 @@ int main(void)
 	
 	while(1)
 	{
-		
+
 	}
 }
 

@@ -64,25 +64,12 @@ TinyCmd_CallBack_Ret Cmd1_Callback(void)
         TinyCmd_Report("Position 2 has parameter: %f\n",ArgFloat);
     }
 
-
-    if(TinyCmd_Arg_Check("PWM",0) == TINYCMD_SUCCESS)
-    {
-        unsigned char pwm = 0;
-        if(TinyCmd_Arg_To_Num(1,&pwm,TINYCMD_UINT8))
-        {
-            //Do something here when the command with argument "check" is called
-            //Your code here......
-            TinyCmd_Report("Position 1 has parameter: %d\n",pwm);
-        }
-
-    }
-
-
+    return TINYCMD_SUCCESS;
 }
 
 TinyCmd_CallBack_Ret Cmd2_Callback(void)
 {
-    TinyCmd_Report("Command1 is called!\n");
+    TinyCmd_Report("Command2 is called!\n");
 }
 
 
@@ -104,7 +91,7 @@ int main(void)
 
     TinyCmd_SendChar = (void*)putchar;
 
-    TinyCmd_Report("float %f \n int:%d\n",3.14,5);
+    TinyCmd_Report("float %f \n int:%d\n",3.1456,5);
 
     while(1)
     {
