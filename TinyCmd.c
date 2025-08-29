@@ -52,7 +52,7 @@ typedef struct TinyCmd_List {
 }TinyCmd_List;
 
 //Local Variables****************************************************************//
-static char* strtok_next = NULL; 
+static char* strtok_next = NULL;
 TinyCmd_List TinyCmdRunning_Cmd;
 TinyCmd_Counter_Type token_count;
 
@@ -153,7 +153,7 @@ static TinyCmd_Status TinyCmd_Buf_Clear(void)
         TinyCmd_buf.input[i] = '\0';
     }
     TinyCmd_buf.length = 0;
-    
+
     return TINYCMD_SUCCESS;
 }
 
@@ -336,6 +336,11 @@ static void dtoa(double value, char* buffer, int precision) {
     int integer_part = (int)value;
     double fractional_part = value - integer_part;
 
+    if(fractional_part < 0)
+    {
+        fractional_part = -fractional_part;
+    }
+
     itoa(integer_part, buffer, 10);
     char* p = buffer + TinyCmd_strlen(buffer);
 
@@ -363,7 +368,7 @@ static void send_string(const char* str) {
 //Description:Trim the unnecessary shit(' ','\r','\n') characters from the end of the string.
 static void TinyCmd_trim(char *str) {
     TinyCmd_Counter_Type len = TinyCmd_strlen(str);
-    
+
     while (len > 0 && (str[len - 1] == ' ' || str[len - 1] == '\r' || str[len - 1] == '\n')) {
         str[--len] = '\0';
     }
@@ -371,9 +376,9 @@ static void TinyCmd_trim(char *str) {
 
 //Global functions****************************************************************//
 
-//char* TinyCmd_strcpy(char* dest, const char* src) 
+//char* TinyCmd_strcpy(char* dest, const char* src)
 //Description:Copy the string from src to dest.
-char* TinyCmd_strcpy(char* dest, const char* src) 
+char* TinyCmd_strcpy(char* dest, const char* src)
 {
     if (dest == NULL || src == NULL) {
         return NULL;
@@ -420,8 +425,8 @@ TinyCmd_Status TinyCmd_Handler(void) {
 
     //Excute callback function of command
     for (i = 0; i < TinyCmdRunning_Cmd.length; i++) {
-        
-        if (!TinyCmd_strcmp(command, TinyCmdRunning_Cmd.list[i]->command)) 
+
+        if (!TinyCmd_strcmp(command, TinyCmdRunning_Cmd.list[i]->command))
         {
             TinyCmdRunning_Cmd.list[i]->callback();
             //Clear TinyCmd_buf
@@ -476,7 +481,7 @@ TinyCmd_Status TinyCmd_Arg_Check(const char* arg1,TinyCmd_Counter_Type p_arg2)
     else{
         return TINYCMD_FAILED;
     }
-        
+
 }
 
 //char* TinyCmd_Arg_Get_Len(TinyCmd_Counter_Type p_arg):
@@ -566,7 +571,7 @@ TinyCmd_Status TinyCmd_Arg_To_Num(TinyCmd_Counter_Type p_arg, void* out_val, Tin
                 *(unsigned int*)out_val = (unsigned int)result;
             }
             #else
-            *(unsigned int*)out_val = (unsigned int)result; 
+            *(unsigned int*)out_val = (unsigned int)result;
             #endif
             break;
         }
@@ -637,7 +642,7 @@ TinyCmd_Status TinyCmd_Arg_To_Num(TinyCmd_Counter_Type p_arg, void* out_val, Tin
 
 //TinyCmd_Status TinyCmd_Report(const char* format,...)
 //Description:A printf-like function print the formatted string to somewhere user designated.
-TinyCmd_Status TinyCmd_Report(const char* format, ...) 
+TinyCmd_Status TinyCmd_Report(const char* format, ...)
 {
     va_list args;
     va_start(args, format);
