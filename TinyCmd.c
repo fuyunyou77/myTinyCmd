@@ -37,9 +37,9 @@
 #define UINT16_MAX 65535
 #define INT16_MAX 32767
 #define INT16_MIN -32768
-#define UINT32_MAX 4294967295
+#define UINT32_MAX 4294967295u
 #define INT32_MAX 2147483647
-#define INT32_MIN -2147483648
+#define INT32_MIN (~0x7fffffff)
 #define FLT_MAX 3.402823e+38
 #define DBL_MAX 1.7976931348623157e+308
 #endif //LIMITS_H
@@ -667,6 +667,15 @@ TinyCmd_Status TinyCmd_Report(const char* format, ...)
                     char num_buffer[32];
                     uitoa(value, num_buffer, 10);
                     send_string(num_buffer);
+                    break;
+                }
+                case '.':
+                {
+                    double value = va_arg(args, double);
+                    char num_buffer[64];
+                    dtoa(value, num_buffer, (*(++format) - '0'));
+                    send_string(num_buffer);
+                    format++;
                     break;
                 }
                 case 'f': {
