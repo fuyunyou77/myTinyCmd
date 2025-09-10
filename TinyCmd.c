@@ -669,6 +669,15 @@ TinyCmd_Status TinyCmd_Report(const char* format, ...)
                     send_string(num_buffer);
                     break;
                 }
+                case '.':
+                {
+                    double value = va_arg(args, double);
+                    char num_buffer[64];
+                    dtoa(value, num_buffer, (*(++format) - '0'));
+                    send_string(num_buffer);
+                    format++;
+                    break;
+                }
                 case 'f': {
                     double value = va_arg(args, double);
                     char num_buffer[64];
