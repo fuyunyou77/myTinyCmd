@@ -359,9 +359,14 @@ static void dtoa(double value, char* buffer, int precision) {
 //TinyCmd_Status TinyCmd_SendChar(char c)
 //Description:Send a character to some where user designated.
 static void send_string(const char* str) {
-    while (*str) {
+#ifndef USE_USART_DMA_SEND_STR
+    while (*str)
+    {
         CMD_SEND_CHAR(*str++);
     }
+#else
+    CMD_SEND_STRING(str);
+#endif
 }
 
 //TinyCmd_Status TinyCmd_trim(char *str)
